@@ -30,6 +30,7 @@ async function checkStatusOrder(orderId) {
         }
     } catch (err) {
         console.error(`[ERROR] Order ${orderId} => ${err.message}`);
+        return null;
     }
 }
 
@@ -49,9 +50,29 @@ cron.schedule("0 16 * * *", () => {
     checkStatusOrder("ORDER-12345");
 });
 
-// สร้าง endpoint ไว้เช็คว่า service ทำงาน
+// ✅ Endpoint health check
 app.get("/", (req, res) => {
     res.send("🚀 Node Cron Service is running...");
+});
+
+// ✅ Endpoint ให้ Laravel เรียกเช็คสถานะ
+app.get("/check-status/:orderId", async (req, res) => {
+    const { orderId } = req.params;
+    console.log(`🔎 API request => check status ${orderId}`);
+
+    const result = await checkStatusOrder(orderId);
+
+    if (result) {
+        return res.json({
+            status: "success",
+            data: result,
+        });
+    } else {
+        return res.status(400).json({
+            status: "error",
+            message: "ไม่สามารถดึงข้อมูลจาก API ได้",
+        });
+    }
 });
 
 app.listen(PORT, () => {
