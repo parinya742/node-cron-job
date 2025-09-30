@@ -58,6 +58,7 @@ app.get("/", (req, res) => {
 // ✅ Endpoint ให้ Laravel เรียกเช็คสถานะ
 app.get("/check-status/:orderId", async (req, res) => {
     const { orderId } = req.params;
+    console.log(`🔎 [Node] Laravel เรียก API => check status ${orderId}`);
     console.log(`🔎 API request => check status ${orderId}`);
 
     const result = await checkStatusOrder(orderId);
